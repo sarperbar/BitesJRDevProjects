@@ -173,3 +173,109 @@ public class DestroyObjects : MonoBehaviour
 
 
 ```
+Devamında Game Manager'ı oluşturdum ve bunun içinde score tutmayı, arttırmayı, azaltmayı ayarladım.
+Oyunun temel mekanikleri hazırdı.
+
+## Üçüncü Hafta
+Bu hafta VR eğitimine başladım. Bilgisayarıma kurulumları zaman aldı. Eğitimdeki oda tasarımını yaptım ama
+bilgisayarım yetersiz kaldığı için VR gözlüğü ile deneyimleyemedim. Bu yüzden ne kadar başarılı olduğumu bilmiyorum. Teorik olarak ise temel VR geliştiriciliğini öğrendim.
+
+## Dördüncü Hafta
+AR Treasure Hunter projemi oyun haline getirmeye başladım. UI ile uğraştım. Müzik, ses efekti, görüntü efekti, menü butonları yaptım. Kullanıcı feedbacklerine göre oyun mekaniklerine eklemeler yaptım. Save sistemi oluşturdum.
+Bu sistemde  oyun başlangıcında kullanıcıdan username alınıyor ve username_userdata.json dosyası olarak geçen süre ve score kaydediliyor. Eğer daha önce giriş yapmamış bir kullanıcı ise yeni bir dosya oluşturuluyor.
+```csharp
+
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System.IO;
+using TMPro;
+
+public class DataManager : MonoBehaviour
+{
+    [SerializeField] float hideDelay = 2f;
+    [SerializeField]  Stopwatch stopwatch;
+    [SerializeField] GameManager_4 gameManager;
+    public UserData userData;
+    private string dataFilePath;
+    private string currentUsername;
+    [SerializeField] private TextMeshProUGUI saveText;
+
+    private void Awake()
+    {
+        stopwatch=GameObject.Find("GameManager_4").GetComponent<Stopwatch>();
+        gameManager = GameObject.Find("GameManager_4").GetComponent<GameManager_4>();
+        currentUsername = PlayerPrefs.GetString("Username");
+        dataFilePath = Application.persistentDataPath + "/" + currentUsername + "userdata.json";
+    }
+
+    private void Start()
+    {
+        LoadUserData();
+    }
+
+    private void Update()
+    {
+          userData.Time = stopwatch.currentTime;
+          userData.Score = gameManager.score;        
+    }
+
+    public void SaveUserData()
+    {
+        string json = JsonUtility.ToJson(userData);
+        File.WriteAllText(dataFilePath, json);
+        saveText.gameObject.SetActive(true);
+        StartCoroutine(HideTextAfterDelay());
+       
+    }
+    public void SaveRestartUserData()
+    {
+        userData.Time = 0;
+        userData.Score = 0;
+        string json = JsonUtility.ToJson(userData);
+        File.WriteAllText(dataFilePath, json);
+    }
+    
+    
+    private IEnumerator HideTextAfterDelay()
+    {
+        yield return new WaitForSeconds(hideDelay);
+        saveText.gameObject.SetActive(false);
+    }
+
+    private void LoadUserData()
+    {
+        
+        if (File.Exists(dataFilePath))
+        {
+            string json = File.ReadAllText(dataFilePath);
+            userData = JsonUtility.FromJson<UserData>(json);
+            Debug.Log(dataFilePath+"File exist");
+        }
+        else
+        {
+            userData = new UserData();
+            userData.Time = 0f;
+            Debug.Log(dataFilePath+"File dne");
+        }
+
+        gameManager.score = userData.Score;
+        stopwatch.currentTime = userData.Time;
+    }
+
+    private void OnApplicationQuit()
+    {
+        SaveUserData();
+        Debug.Log("quit Game Saved");
+    }
+}
+
+[System.Serializable]
+public class UserData
+{
+    public float Time;
+    public float Score;
+}
+```
+Oyunun son düzenlemelerini yaptım.
