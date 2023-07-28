@@ -14,18 +14,26 @@ public class RoadMove : MonoBehaviour
     private float repeatz;
     public float verticalInput;
     private float speed = 20f;
+    private Transform _tr;
+    private BoxCollider boxCollider;
     void Start()
     {
         startPos= transform.position;
+        _tr = transform;
+        boxCollider = GetComponent<BoxCollider>();
     }
     void Update()
-    {              
-        repeatz= GetComponent<BoxCollider>().size.z /2 ;
-        verticalInput = Input.GetAxis("Vertical");
-        transform.Translate(Vector3.right * Time.deltaTime * speed * verticalInput);
-        if(transform.position.z <  startPos.z - repeatz ){
-            transform.position=startPos;
-        }
+    {
+        if(boxCollider!=null)
+        {
+            repeatz= boxCollider.size.z /2 ;
+            verticalInput = Input.GetAxis("Vertical");
+            _tr.Translate(Vector3.right * Time.deltaTime * speed * verticalInput);
+            if(_tr.position.z <  startPos.z - repeatz ){
+                _tr.position=startPos;
+            }
+        }       
+        
     }
     }
 
