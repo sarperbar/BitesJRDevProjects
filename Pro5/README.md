@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
     {
         pauseMenu.SetActive(false);
     }
-
+    // Empty Unity callbacks also will be called from Mono, so if you will not use, do not write them. 
     // Update is called once per frame
     void Update()
     {
@@ -116,6 +116,7 @@ public class GameManager : MonoBehaviour
 
     public void Pause()
     {
+// investigate timescale and time freeze alternatives. Dangerous!!!!!
         pauseMenu.SetActive(true);
         Time.timeScale = 0f;
     }
